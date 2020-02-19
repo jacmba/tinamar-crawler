@@ -73,7 +73,7 @@ func (c *Scrapper) ParseLeagueHeader(header string) []string {
 		}
 	}
 
-	return fields
+	return fields[1:]
 }
 
 /*
@@ -87,6 +87,41 @@ func (c *Scrapper) ExtractLeagueTeams(league string) string {
 }
 
 /*
+ParseLeagueTeams converts raw html table data into map
+for further processing
+*/
+func (c *Scrapper) ParseLeagueTeams(header []string, teams string) []map[string]string {
+	teamsList := strings.Split(teams, "</tr>")
+	result := make([]map[string]string, 0)
+
+	for _, rawTeam := range teamsList {
+		idPreffix := "<tr class=\"position-relative\" data-team-id=\""
+		idSuffix := "\">"
+		idBegin := strings.Index(rawTeam, idPreffix)
+
+		if idBegin >= 0 {
+			team := make(map[string]string)
+			team["id"] = extractSubtext(rawTeam, idPreffix, idSuffix)
+			fieldsList := strings.Split(rawTeam, "</td>")
+			fields := extractFields(fieldsList[1:])
+			fillFields(team, header, fields)
+			result = append(result, team)
+		}
+	}
+
+	return result
+}
+
+/*
+fillFields Fills up a map reference with gien fields and values
+*/
+func fillFields(obj map[string]string, keys []string, values []string) {
+	for i, key := range keys {
+		obj[key] = values[i]
+	}
+}
+
+/*
 extractSubtext returns text within defined marks
 */
 func extractSubtext(text, beginMark, endMark string) string {
@@ -94,6 +129,25 @@ func extractSubtext(text, beginMark, endMark string) string {
 	end := strings.Index(text, endMark)
 
 	return text[begin:end]
+}
+
+/*
+extractFiels returns list of field values from given TD rows
+*/
+func extractFields(list []string) []string {
+	result := make([]string, 0)
+
+	for _, f := range list {
+		preffix := "<td>"
+		begin := strings.Index(f, preffix) + len(preffix)
+
+		if begin >= 0 {
+			field := f[begin:]
+			result = append(result, field)
+		}
+	}
+
+	return result
 }
 
 /*

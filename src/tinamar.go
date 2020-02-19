@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"./scrapper"
@@ -25,7 +26,8 @@ func main() {
 	leagueHeader := sc.ExtractLeagueHeader(league)
 	leagueFields := sc.ParseLeagueHeader(leagueHeader)
 	leagueTeams := sc.ExtractLeagueTeams(league)
+	leagueMap := sc.ParseLeagueTeams(leagueFields, leagueTeams)
 
-	fmt.Println(leagueFields)
-	fmt.Println(leagueTeams)
+	leagueJSON, _ := json.Marshal(leagueMap)
+	fmt.Println(string(leagueJSON))
 }

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 
 	"./persistence"
@@ -13,7 +11,7 @@ const tinamarURL = "http://ligatinamar.com/category/once_veteranos_38b"
 const mongoURL = "mongodb://localhost:27017"
 
 func main() {
-	fmt.Println("Starting crawling service")
+	log.Println("Starting crawling service")
 
 	pers := persistence.Persistence{
 		URI: mongoURL,
@@ -43,6 +41,9 @@ func main() {
 	leagueTeams := sc.ExtractLeagueTeams(league)
 	leagueMap := sc.ParseLeagueTeams(leagueFields, leagueTeams)
 
-	leagueJSON, _ := json.Marshal(leagueMap)
-	fmt.Println(string(leagueJSON))
+	strBoardErr := pers.StoreLeaderBoard(leagueMap)
+
+	if strBoardErr != nil {
+		panic(strBoardErr)
+	}
 }

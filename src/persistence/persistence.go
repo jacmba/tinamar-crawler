@@ -2,7 +2,10 @@ package persistence
 
 import (
 	"context"
+	"log"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -43,6 +46,40 @@ func (p *Persistence) Connect() error {
 
 	p.database = client.Database(database)
 	p.boardCollection = p.database.Collection(boardCollection)
+
+	return nil
+}
+
+/*
+StoreLeaderBoard takes an input map array, transforms maps to bson and stores
+results in leaderboards collection
+*/
+func (p *Persistence) StoreLeaderBoard(board []map[string]string) error {
+	for _, entry := range board {
+		/*bs, bsonErr := bson.Marshal(entry)
+
+		if bsonErr != nil {
+			return bsonErr
+		}*/
+
+		filter := bson.M{
+			"id": entry["id"],
+		}
+
+		data := bson.M{
+			"$set": entry,
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		res, updErr := p.boardCollection.UpdateOne(ctx, filter, data, options.Update().SetUpsert(true))
+
+		if updErr != nil {
+			return updErr
+		}
+
+		log.Println("Mongo Update result", res)
+	}
 
 	return nil
 }

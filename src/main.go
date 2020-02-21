@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"./model"
 	"./persistence"
 	"./scrapper"
 )
@@ -25,7 +26,8 @@ func exec(sc *scrapper.Scrapper, pers *persistence.Persistence) {
 		leagueTeams := sc.ExtractLeagueTeams(league)
 		leagueMap := sc.ParseLeagueTeams(leagueFields, leagueTeams)
 
-		strBoardErr := pers.StoreLeaderBoard(leagueMap)
+		teams := model.MapTeams(leagueMap)
+		strBoardErr := pers.StoreLeaderBoard(teams)
 
 		if strBoardErr != nil {
 			panic(strBoardErr)

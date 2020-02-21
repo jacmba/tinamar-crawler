@@ -9,6 +9,8 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"../model"
 )
 
 /*
@@ -54,20 +56,15 @@ func (p *Persistence) Connect() error {
 StoreLeaderBoard takes an input map array, transforms maps to bson and stores
 results in leaderboards collection
 */
-func (p *Persistence) StoreLeaderBoard(board []map[string]string) error {
-	for _, entry := range board {
-		/*bs, bsonErr := bson.Marshal(entry)
-
-		if bsonErr != nil {
-			return bsonErr
-		}*/
+func (p *Persistence) StoreLeaderBoard(board []model.Team) error {
+	for _, team := range board {
 
 		filter := bson.M{
-			"id": entry["id"],
+			"id": team.GetID(),
 		}
 
 		data := bson.M{
-			"$set": entry,
+			"$set": team.ToBson(),
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

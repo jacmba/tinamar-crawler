@@ -102,6 +102,11 @@ func (c *Scrapper) ParseLeagueTeams(header []string, teams string) []map[string]
 		if idBegin >= 0 {
 			team := make(map[string]string)
 			team["id"] = extractSubtext(rawTeam, idPreffix, idSuffix)
+
+			posPreffix := "<th class=\"text-center\" scope=\"row\">"
+			posSuffix := "</th>"
+			team["pos"] = extractSubtext(rawTeam, posPreffix, posSuffix)
+
 			fieldsList := strings.Split(rawTeam, "</td>")
 			fields := extractFields(fieldsList[1:])
 			fillFields(team, header, fields)

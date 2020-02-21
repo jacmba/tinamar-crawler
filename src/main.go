@@ -9,7 +9,7 @@ import (
 	"./scrapper"
 )
 
-func exec(sc scrapper.Scrapper, pers persistence.Persistence) {
+func exec(sc *scrapper.Scrapper, pers *persistence.Persistence) {
 	period, _ := strconv.Atoi(executionPeriod)
 	for {
 		log.Println("---- STARTING CRAWLING PROCESS ----")
@@ -55,5 +55,5 @@ func main() {
 
 	log.Println("Connected to DB")
 
-	exec(sc, pers)
+	exec(&sc, &pers)
 }

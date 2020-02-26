@@ -165,8 +165,93 @@ func extractRows(text string) []string {
 /*
 ExtractLeagueFixtures returns the league fixtures info from html body
 */
-func (s *Scrapper) ExtractLeagueFixtures(body string) string {
+func (c *Scrapper) ExtractLeagueFixtures(body string) string {
 	fixturesPreffix := "<!-- begin content of calendar table 1-->"
 	fixturesSuffix := "<!-- end calendar-->"
 	return extractSubtext(body, fixturesPreffix, fixturesSuffix)
+}
+
+/*
+SplitLeagueFixtures returns array with separated fixtures html text
+*/
+func (c *Scrapper) SplitLeagueFixtures(text string) []string {
+	fixtureSeparator := "<div class=\"table-header w-100\">"
+	return strings.Split(text, fixtureSeparator)[1:]
+}
+
+/*
+ExtractFixture returns fixture number and raw games text string
+*/
+func (c *Scrapper) ExtractFixture(f string) (string, []string) {
+	fixturePreffix := "<span class=\"d-inline-block\">Jornada "
+	fixtureSuffix := "</span>"
+	gamesPreffix := "<tbody>"
+	gamesSuffix := "</tbody>"
+
+	fixture := extractSubtext(f, fixturePreffix, fixtureSuffix)
+	games := extractSubtext(f, gamesPreffix, gamesSuffix)
+	gamesList := strings.Split(games, "<tr>")[1:]
+
+	return fixture, gamesList
+}
+
+/*
+ParseGame returns key-value map with game info from raw html
+*/
+func (c *Scrapper) ParseGame(f string, g string) map[string]string {
+	game := make(map[string]string)
+	game["fixture"] = f
+
+	dateBegin := "data-date=\""
+	timeBegin := "\" data-time=\""
+	venueBegin := "\" data-place=\""
+	dataEnd := "\"><i class=\"fa fa-calendar\""
+
+	game["date"] = extractSubtext(g, dateBegin, timeBegin)
+	game["time"] = extractSubtext(g, timeBegin, venueBegin)
+	game["venue"] = extractSubtext(g, venueBegin, dataEnd)
+
+	rawData := strings.Split(g, "\n")
+	rawHomeTeam := rawData[5]
+	rawHomeScore := rawData[6]
+	rawAwayTeam := rawData[7]
+	rawAwayScore := rawData[8]
+	rawDataBegin := "\">"
+	rawDataEnd := "</td>"
+
+	game["homeTeam"] = extractSubtext(rawHomeTeam, rawDataBegin, rawDataEnd)
+	game["homeScore"] = extractSubtext(rawHomeScore, rawDataBegin, rawDataEnd)
+	game["awayTeam"] = extractSubtext(rawAwayTeam, rawDataBegin, rawDataEnd)
+	game["awayScore"] = extractSubtext(rawAwayScore, rawDataBegin, rawDataEnd)
+
+	return game
+}
+
+/*
+ParseGames converts array of raw html text to array of key-value game maps
+*/
+func (c *Scrapper) ParseGames(f string, gs []string) []map[string]string {
+	games := make([]map[string]string, 0)
+
+	for _, g := range gs {
+		game := c.ParseGame(f, g)
+		games = append(games, game)
+	}
+
+	return games
+}
+
+/*
+ParseFixtures returns parser map of games from raw fixture html list
+*/
+func (c *Scrapper) ParseFixtures(fs []string) []map[string]string {
+	games := make([]map[string]string, 0)
+
+	for _, f := range fs {
+		fixture, rawGames := c.ExtractFixture(f)
+		parsedGames := c.ParseGames(fixture, rawGames)
+		games = append(games, parsedGames...)
+	}
+
+	return games
 }

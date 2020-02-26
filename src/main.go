@@ -26,8 +26,10 @@ func exec(sc *scrapper.Scrapper, pers *persistence.Persistence) {
 		leagueTeams := sc.ExtractLeagueTeams(league)
 		leagueMap := sc.ParseLeagueTeams(leagueFields, leagueTeams)
 
-		fixtures := sc.ExtractLeagueFixtures(body)
-		log.Println(fixtures)
+		rawFixtures := sc.ExtractLeagueFixtures(body)
+		fixtures := sc.SplitLeagueFixtures(rawFixtures)
+		games := sc.ParseFixtures(fixtures)
+		log.Println(games)
 
 		teams := model.MapTeams(leagueMap)
 		strBoardErr := pers.StoreLeaderBoard(teams)

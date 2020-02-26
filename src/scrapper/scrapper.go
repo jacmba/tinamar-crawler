@@ -161,3 +161,12 @@ extractRows returns a list of strings separating input string lines
 func extractRows(text string) []string {
 	return strings.Split(text, "\n")
 }
+
+/*
+ExtractLeagueFixtures returns the league fixtures info from html body
+*/
+func (s *Scrapper) ExtractLeagueFixtures(body string) string {
+	fixturesPreffix := "<!-- begin content of calendar table 1-->"
+	fixturesSuffix := "<!-- end calendar-->"
+	return extractSubtext(body, fixturesPreffix, fixturesSuffix)
+}

@@ -214,8 +214,8 @@ func (c *Scrapper) ParseGame(f string, g string) map[string]string {
 	rawData := strings.Split(g, "\n")
 	rawHomeTeam := rawData[5]
 	rawHomeScore := rawData[6]
-	rawAwayTeam := rawData[7]
-	rawAwayScore := rawData[8]
+	rawAwayScore := rawData[7]
+	rawAwayTeam := rawData[8]
 	rawDataBegin := "\">"
 	rawDataEnd := "</td>"
 

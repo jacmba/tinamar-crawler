@@ -29,7 +29,6 @@ func exec(sc *scrapper.Scrapper, pers *persistence.Persistence) {
 		rawFixtures := sc.ExtractLeagueFixtures(body)
 		fixtures := sc.SplitLeagueFixtures(rawFixtures)
 		games := sc.ParseFixtures(fixtures)
-		log.Println(games)
 
 		teams := model.MapTeams(leagueMap)
 		strBoardErr := pers.StoreLeaderBoard(teams)
@@ -37,6 +36,14 @@ func exec(sc *scrapper.Scrapper, pers *persistence.Persistence) {
 		if strBoardErr != nil {
 			panic(strBoardErr)
 		}
+
+		calendar := model.MapFixtures(games)
+		storeCalErr := pers.StoreCalendar(calendar)
+
+		if storeCalErr != nil {
+			panic(storeCalErr)
+		}
+
 		log.Println("---- FINISHED CRAWLING PROCESS ----")
 
 		time.Sleep(time.Duration(period) * time.Hour)

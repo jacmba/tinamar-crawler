@@ -4,7 +4,7 @@ run: build
 	./tinamar-crawler
 
 build:
-	go build -o tinamar-crawler ./src
+	go build -o tinamar-crawler
 
 clean:
 	rm tinamar-crawler

@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"./model"
-	"./persistence"
-	"./scrapper"
+	"tinamar-crawler/model"
+	"tinamar-crawler/persistence"
+	"tinamar-crawler/scrapper"
 )
 
 func exec(sc *scrapper.Scrapper, pers *persistence.Persistence) {
